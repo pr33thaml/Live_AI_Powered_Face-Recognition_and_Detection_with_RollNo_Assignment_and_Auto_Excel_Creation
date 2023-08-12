@@ -15,6 +15,7 @@ cap = cv2.VideoCapture(0)
 # Initialize data storage
 detected_faces = []  # List to temporarily store detected faces and statuses
 recorded_roll_numbers = set()  # Set to store recorded roll numbers
+present_count = 0  # Initialize present count
 
 while True:
     ret, frame = cap.read()
@@ -39,11 +40,12 @@ while True:
             if roll_number_match not in recorded_roll_numbers:
                 detected_faces.append((roll_number_match, status))
                 recorded_roll_numbers.add(roll_number_match)
+                present_count += 1  # Increase present count for new face
 
-        # Display status on video frame
-        font = cv2.FONT_HERSHEY_DUPLEX
-        text = f"{roll_number_match} - {status}"
-        cv2.putText(frame, text, (10, 30), font, 1.0, (0, 255, 0), 1)
+    # Display present count on video frame
+    font = cv2.FONT_HERSHEY_DUPLEX
+    present_text = f"Present: {present_count}"
+    cv2.putText(frame, present_text, (10, 30), font, 1.0, (0, 255, 0), 1)  # Set color to green
 
     cv2.imshow("Face Recognition", frame)
 
@@ -54,6 +56,9 @@ while True:
 # Close the camera window
 cap.release()
 cv2.destroyAllWindows()
+
+# Sort detected_faces by roll number before saving
+detected_faces.sort(key=lambda x: x[0])
 
 # Save the detected faces and statuses to Excel
 excel_file_path = "detected_faces.xlsx"
